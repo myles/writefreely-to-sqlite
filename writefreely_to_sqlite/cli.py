@@ -106,7 +106,6 @@ def posts(db_path, auth):
     service.save_posts(db=db, posts=posts, user_username=user_username)
 
 
-
 @cli.command()
 @click.argument(
     "db_path",
@@ -133,4 +132,6 @@ def collections(db_path, auth):
     user_username = user["username"]
 
     collections = service.get_collections(client)
-    service.save_collections(db=db, collections=collections, user_username=user_username)
+    service.save_collections(
+        db=db, collections=collections, user_username=user_username
+    )

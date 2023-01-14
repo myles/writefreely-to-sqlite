@@ -236,7 +236,9 @@ def transform_collection(collection: Dict[str, Any], user_username: str):
     collection["user_username"] = user_username
 
 
-def save_collections(db: Database, collections: List[Dict[str, Any]], user_username):
+def save_collections(
+    db: Database, collections: List[Dict[str, Any]], user_username
+):
     """
     Save WriteFreely posts to the SQLite database.
     """
@@ -247,4 +249,6 @@ def save_collections(db: Database, collections: List[Dict[str, Any]], user_usern
     for collection in collections:
         transform_collection(collection, user_username)
 
-    collections_table.insert_all(records=collections, pk="alias", alter=True, replace=True)
+    collections_table.insert_all(
+        records=collections, pk="alias", alter=True, replace=True
+    )
