@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from sqlite_utils import Database
 from sqlite_utils.db import Table
@@ -27,10 +27,8 @@ def build_database(db: Database):
     Build the WriteFreely SQLite database structure.
     """
     users_table = get_table("users", db=db)
-    collections_table = get_table("collections", db=db)
-    posts_table = get_table("posts", db=db)
 
-    if users_table.exists():
+    if users_table.exists() is False:
         users_table.create(
             columns={
                 "username": str,
@@ -45,7 +43,9 @@ def build_database(db: Database):
     if ("username",) not in users_indexes:
         users_table.create_index(["username"])
 
-    if collections_table.exists():
+    collections_table = get_table("collections", db=db)
+
+    if collections_table.exists() is False:
         collections_table.create(
             columns={
                 "alias": str,
@@ -70,7 +70,9 @@ def build_database(db: Database):
     if ("user_username",) not in collections_indexes:
         collections_table.create_index(["user_username"])
 
-    if posts_table.exists():
+    posts_table = get_table("posts", db=db)
+
+    if posts_table.exists() is False:
         posts_table.create(
             columns={
                 "id": str,
@@ -111,8 +113,8 @@ def get_client(auth_file_path: str) -> WriteFreelyClient:
     auth = json.loads(raw_auth)
 
     return WriteFreelyClient(
-        domain=auth["wirefreely_domain"],
-        access_token=auth["wirefreely_access_token"],
+        domain=auth["writefreely_domain"],
+        access_token=auth["writefreely_access_token"],
     )
 
 
@@ -130,7 +132,7 @@ def transform_user(user: Dict[str, Any]):
     Transformer a WriteFreely user, so it can be safely saved to the SQLite
     database.
     """
-    to_remove = [k for k in user.keys() if k not in ("username")]
+    to_remove = [k for k in user.keys() if k not in ("username",)]
     for key in to_remove:
         del user[key]
 
@@ -143,3 +145,57 @@ def save_user(db: Database, user: Dict[str, Any]):
 
     users_table = get_table("users", db=db)
     users_table.insert(user, pk="username", alter=True, replace=True)
+
+
+def get_posts(client: WriteFreelyClient) -> List[Dict[str, Any]]:
+    """
+    Get the posts for the authenticated user.
+    """
+    _, response = client.get_me_posts()
+    response.raise_for_status()
+    return response.json()["data"]
+
+
+def transform_post(post: Dict[str, Any], user_username: str):
+    """
+    Transformer a WriteFreely post, so it can be safely saved to the SQLite
+    database.
+    """
+    collection_alias = post["collection"]["alias"]
+
+    to_remove = [
+        k
+        for k in post.keys()
+        if k
+        not in (
+            "id",
+            "slug",
+            "appearance",
+            "language",
+            "rtl",
+            "created",
+            "updated",
+            "title",
+            "body",
+            "tags",
+        )
+    ]
+    for key in to_remove:
+        del post[key]
+
+    post["collection_alias"] = collection_alias
+    post["user_username"] = user_username
+
+
+def save_posts(db: Database, posts: List[Dict[str, Any]], user_username):
+    """
+    Save WriteFreely posts to the SQLite database.
+    """
+    build_database(db)
+
+    posts_table = get_table("posts", db=db)
+
+    for post in posts:
+        transform_post(post, user_username)
+
+    posts_table.insert_all(records=posts, pk="id", alter=True, replace=True)

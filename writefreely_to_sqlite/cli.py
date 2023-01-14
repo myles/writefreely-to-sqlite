@@ -41,8 +41,8 @@ def auth(auth):
 
     auth_file_content = json.dumps(
         {
-            "wirefreely_domain": domain,
-            "wirefreely_access_token": client.access_token,
+            "writefreely_domain": domain,
+            "writefreely_access_token": client.access_token,
         },
         indent=4,
     )
@@ -75,3 +75,32 @@ def user(db_path, auth):
 
     data = service.get_user(client)
     service.save_user(db, data)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def posts(db_path, auth):
+    """
+    Save the authenticated user WriteFreely posts.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    user = service.get_user(client)
+    user_username = user["username"]
+
+    posts = service.get_posts(client)
+    service.save_posts(db=db, posts=posts, user_username=user_username)
