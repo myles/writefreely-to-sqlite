@@ -25,7 +25,7 @@ def cli():
 )
 def auth(auth):
     """
-    Save RescueTime authentication credentials to a JSON file.
+    Save WriteFreely authentication credentials to a JSON file.
     """
     auth_file_path = Path(auth).absolute()
 

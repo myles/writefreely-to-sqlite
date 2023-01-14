@@ -44,7 +44,7 @@ class WriteFreelyClient:
         **kwargs,
     ) -> Tuple[PreparedRequest, Response]:
         """
-        Makes a basic request to RescueTime.
+        Makes a basic request to WriteFreely.
         """
         headers = {} if headers is None else headers
         headers["Content-Type"] = "application/json"
