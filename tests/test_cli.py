@@ -97,7 +97,7 @@ def test_posts(cli_runner, mock_db, mocker):
 
 
 @responses.activate
-def test_posts(cli_runner, mock_db, mocker):
+def test_collections(cli_runner, mock_db, mocker):
     mocker.patch(
         "writefreely_to_sqlite.cli.service.open_database", return_value=mock_db
     )
