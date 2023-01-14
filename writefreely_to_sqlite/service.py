@@ -22,7 +22,11 @@ def build_database(db: Database):
 
     if "users" not in table_names:
         db["users"].create(
-            columns={"username": str},
+            columns={
+                "username": str,
+                "email": str,
+                "created": str,
+            },
             pk="username",
         )
         db["users"].enable_fts(["username"], create_triggers=True)

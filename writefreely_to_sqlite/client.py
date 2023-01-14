@@ -73,19 +73,19 @@ class WriteFreelyClient:
 
         return request, response
 
-    def auth_logout(self):
-        return self.request(method="DELETE", url=f"{self.base_url}/auth/me")
+    def auth_logout(self) -> Tuple[PreparedRequest, Response]:
+        request, response = self.request(method="DELETE", url=f"{self.base_url}/auth/me")
+        response.raise_for_status()
 
-    def get_me(self):
+        self.access_token = None
+
+        return request, response
+
+    def get_me(self) -> Tuple[PreparedRequest, Response]:
         return self.request(method="GET", url=f"{self.base_url}/me")
 
-    def get_me_posts(self):
+    def get_me_posts(self) -> Tuple[PreparedRequest, Response]:
         return self.request(method="GET", url=f"{self.base_url}/me/posts")
 
-    def get_me_collections(self):
+    def get_me_collections(self) -> Tuple[PreparedRequest, Response]:
         return self.request(method="GET", url=f"{self.base_url}/me/collections")
-
-    def get_me_channels(self):
-        return self.request(
-            method="GET", url=f"{self.base_url}/auth/me/channels"
-        )
