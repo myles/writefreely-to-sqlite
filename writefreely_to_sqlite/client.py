@@ -74,7 +74,9 @@ class WriteFreelyClient:
         return request, response
 
     def auth_logout(self) -> Tuple[PreparedRequest, Response]:
-        request, response = self.request(method="DELETE", url=f"{self.base_url}/auth/me")
+        request, response = self.request(
+            method="DELETE", url=f"{self.base_url}/auth/me"
+        )
         response.raise_for_status()
 
         self.access_token = None

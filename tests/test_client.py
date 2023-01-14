@@ -53,9 +53,12 @@ def test_write_freely_client__auth_login():
     )
 
     client = WriteFreelyClient(domain=domain)
-    client.auth_login(alias='username', password='IAmAWriteFreelyPassword')
+    client.auth_login(alias="username", password="IAmAWriteFreelyPassword")
 
-    assert client.access_token == fixtures.AUTH_LOGIN_RESPONSE["data"]["access_token"]
+    assert (
+        client.access_token
+        == fixtures.AUTH_LOGIN_RESPONSE["data"]["access_token"]
+    )
 
 
 @responses.activate
