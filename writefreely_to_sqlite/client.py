@@ -1,5 +1,6 @@
+from typing import Any, Dict, Optional, Tuple
+
 from requests import PreparedRequest, Request, Response, Session
-from typing import Optional, Tuple, Dict, Any
 from requests.auth import AuthBase
 
 
@@ -13,7 +14,6 @@ class WriteFreelyAuth(AuthBase):
 
 
 class WriteFreelyClient:
-
     def __init__(
         self,
         domain: str,
@@ -22,7 +22,7 @@ class WriteFreelyClient:
         self.domain = domain
         self.access_token = access_token
 
-        self.base_url = f'https://{domain}/api'
+        self.base_url = f"https://{domain}/api"
 
         self.session = Session()
 
@@ -45,20 +45,24 @@ class WriteFreelyClient:
         Makes a basic request to RescueTime.
         """
         headers = {} if headers is None else headers
-        headers['Content-Type'] = 'application/json'
+        headers["Content-Type"] = "application/json"
 
-        request = Request(method=method, url=url, headers=headers, json=json, **kwargs)
+        request = Request(
+            method=method, url=url, headers=headers, json=json, **kwargs
+        )
 
         prepped = self.session.prepare_request(request)
         response = self.session.send(prepped, timeout=timeout)
 
         return prepped, response
 
-    def auth_login(self, alias: str, password: str) -> Tuple[PreparedRequest, Response]:
+    def auth_login(
+        self, alias: str, password: str
+    ) -> Tuple[PreparedRequest, Response]:
         request, response = self.request(
             method="POST",
             url=f"{self.base_url}/auth/login",
-            json={'alias': alias, 'pass': password},
+            json={"alias": alias, "pass": password},
         )
 
         response.raise_for_status()
@@ -82,4 +86,6 @@ class WriteFreelyClient:
         return self.request(method="GET", url=f"{self.base_url}/me/collections")
 
     def get_me_channels(self):
-        return self.request(method="GET", url=f"{self.base_url}/auth/me/channels")
+        return self.request(
+            method="GET", url=f"{self.base_url}/auth/me/channels"
+        )

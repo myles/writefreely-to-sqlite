@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
 from sqlite_utils import Database
 
 from .client import WriteFreelyClient
@@ -43,11 +44,11 @@ def build_database(db: Database):
                 "user_username": str,
             },
             pk="alias",
-            foreign_keys=(
-                ("user_username", "users", "username"),
-            ),
+            foreign_keys=(("user_username", "users", "username"),),
         )
-        db["collections"].enable_fts(["title", "description"], create_triggers=True)
+        db["collections"].enable_fts(
+            ["title", "description"], create_triggers=True
+        )
 
     collections_indexes = {tuple(i.columns) for i in db["collections"].indexes}
     if ("alias",) not in collections_indexes:
@@ -95,7 +96,10 @@ def get_client(auth_file_path: str) -> WriteFreelyClient:
 
     auth = json.loads(raw_auth)
 
-    return WriteFreelyClient(domain=auth["wirefreely_domain"], access_token=auth["wirefreely_access_token"])
+    return WriteFreelyClient(
+        domain=auth["wirefreely_domain"],
+        access_token=auth["wirefreely_access_token"],
+    )
 
 
 def get_user(client: WriteFreelyClient) -> Dict[str, Any]:
