@@ -49,19 +49,17 @@ def test_user(cli_runner, mock_db, mocker):
         "writefreely_to_sqlite.cli.service.open_database", return_value=mock_db
     )
 
-    me_response = fixtures.ME_RESPONSE.copy()
-
     responses.add(
         responses.Response(
             method="GET",
             url=f"https://write.as/api/me",
-            json=me_response,
+            json=fixtures.ME_RESPONSE,
         ),
     )
 
     cli_runner.invoke(
         cli.user,
-        args=["writefreely.db', '--auth=tests/fixture-auth.json"],
+        args=["writefreely.db", "--auth=tests/fixture-auth.json"],
     )
 
     assert mock_db["users"].count == 1
@@ -90,7 +88,7 @@ def test_posts(cli_runner, mock_db, mocker):
 
     cli_runner.invoke(
         cli.posts,
-        args=["writefreely.db', '--auth=tests/fixture-auth.json"],
+        args=["writefreely.db", "--auth=tests/fixture-auth.json"],
     )
 
     assert mock_db["posts"].count == 1
@@ -119,7 +117,7 @@ def test_collections(cli_runner, mock_db, mocker):
 
     cli_runner.invoke(
         cli.collections,
-        args=["writefreely.db', '--auth=tests/fixture-auth.json"],
+        args=["writefreely.db", "--auth=tests/fixture-auth.json"],
     )
 
     assert mock_db["collections"].count == 1
