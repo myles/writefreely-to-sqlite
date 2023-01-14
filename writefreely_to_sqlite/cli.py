@@ -35,7 +35,7 @@ def auth(auth):
     client = WriteFreelyClient(domain=domain)
 
     username = click.prompt("Your username or alias")
-    password = click.prompt("Your password")
+    password = click.prompt("Your password", hide_input=True)
 
     client.auth_login(alias=username, password=password)
 
