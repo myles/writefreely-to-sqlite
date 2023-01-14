@@ -32,3 +32,21 @@ def test_transform_post():
         "collection_alias": collection_alias,
         "user_username": user_username,
     }
+
+
+def test_transform_collection():
+    collection = fixtures.COLLECTION_DATA.copy()
+    user_username = "myles"
+
+    service.transform_collection(collection, user_username)
+
+    assert collection == {
+        "alias": collection["alias"],
+        "title": collection["title"],
+        "description": collection["description"],
+        "style_sheet": collection["style_sheet"],
+        "public": collection["public"],
+        "email": collection["email"],
+        "url": collection["url"],
+        "user_username": user_username,
+    }

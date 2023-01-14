@@ -199,3 +199,52 @@ def save_posts(db: Database, posts: List[Dict[str, Any]], user_username):
         transform_post(post, user_username)
 
     posts_table.insert_all(records=posts, pk="id", alter=True, replace=True)
+
+
+def get_collections(client: WriteFreelyClient) -> List[Dict[str, Any]]:
+    """
+    Get the posts for the authenticated user.
+    """
+    _, response = client.get_me_collections()
+    response.raise_for_status()
+    return response.json()["data"]
+
+
+def transform_collection(collection: Dict[str, Any], user_username: str):
+    """
+    Transformer a WriteFreely post, so it can be safely saved to the SQLite
+    database.
+    """
+    to_remove = [
+        k
+        for k in collection.keys()
+        if k
+        not in (
+            "alias",
+            "title",
+            "description",
+            "style_sheet",
+            "public",
+            "email",
+            "url",
+            "user_username",
+        )
+    ]
+    for key in to_remove:
+        del collection[key]
+
+    collection["user_username"] = user_username
+
+
+def save_collections(db: Database, collections: List[Dict[str, Any]], user_username):
+    """
+    Save WriteFreely posts to the SQLite database.
+    """
+    build_database(db)
+
+    collections_table = get_table("collections", db=db)
+
+    for collection in collections:
+        transform_collection(collection, user_username)
+
+    collections_table.insert_all(records=collections, pk="alias", alter=True, replace=True)

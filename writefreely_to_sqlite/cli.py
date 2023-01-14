@@ -104,3 +104,33 @@ def posts(db_path, auth):
 
     posts = service.get_posts(client)
     service.save_posts(db=db, posts=posts, user_username=user_username)
+
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(
+        file_okay=True, dir_okay=False, allow_dash=True, exists=True
+    ),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def collections(db_path, auth):
+    """
+    Save the authenticated user WriteFreely collections.
+    """
+    db = service.open_database(db_path)
+    client = service.get_client(auth)
+
+    user = service.get_user(client)
+    user_username = user["username"]
+
+    collections = service.get_collections(client)
+    service.save_collections(db=db, collections=collections, user_username=user_username)

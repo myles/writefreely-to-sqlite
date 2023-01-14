@@ -94,3 +94,32 @@ def test_posts(cli_runner, mock_db, mocker):
     )
 
     assert mock_db["posts"].count == 1
+
+
+@responses.activate
+def test_posts(cli_runner, mock_db, mocker):
+    mocker.patch(
+        "writefreely_to_sqlite.cli.service.open_database", return_value=mock_db
+    )
+
+    responses.add(
+        responses.Response(
+            method="GET",
+            url=f"https://write.as/api/me",
+            json=fixtures.ME_RESPONSE,
+        ),
+    )
+    responses.add(
+        responses.Response(
+            method="GET",
+            url=f"https://write.as/api/me/collections",
+            json=fixtures.ME_COLLECTIONS_RESPONSE,
+        ),
+    )
+
+    cli_runner.invoke(
+        cli.collections,
+        args=["writefreely.db', '--auth=tests/fixture-auth.json"],
+    )
+
+    assert mock_db["collections"].count == 1

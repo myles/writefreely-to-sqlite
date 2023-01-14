@@ -54,3 +54,8 @@ ME_POSTS_RESPONSE = {
     "code": 200,
     "data": [POST_DATA],
 }
+
+ME_COLLECTIONS_RESPONSE = {
+    "code": 200,
+    "data": [COLLECTION_DATA],
+}
