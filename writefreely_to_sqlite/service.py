@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 from sqlite_utils import Database
+from sqlite_utils.db import Table
 
 from .client import WriteFreelyClient
 
@@ -14,14 +15,23 @@ def open_database(db_file_path: Path) -> Database:
     return Database(db_file_path)
 
 
+def get_table(table_name: str, *, db: Database) -> Table:
+    """
+    Returns a Table from a given db Database object.
+    """
+    return Table(db=db, name=table_name)
+
+
 def build_database(db: Database):
     """
     Build the WriteFreely SQLite database structure.
     """
-    table_names = set(db.table_names())
+    users_table = get_table("users", db=db)
+    collections_table = get_table("collections", db=db)
+    posts_table = get_table("posts", db=db)
 
-    if "users" not in table_names:
-        db["users"].create(
+    if users_table.exists():
+        users_table.create(
             columns={
                 "username": str,
                 "email": str,
@@ -29,14 +39,14 @@ def build_database(db: Database):
             },
             pk="username",
         )
-        db["users"].enable_fts(["username"], create_triggers=True)
+        users_table.enable_fts(["username"], create_triggers=True)
 
-    users_indexes = {tuple(i.columns) for i in db["users"].indexes}
+    users_indexes = {tuple(i.columns) for i in users_table.indexes}
     if ("username",) not in users_indexes:
-        db["users"].create_index(["username"])
+        users_table.create_index(["username"])
 
-    if "collections" not in table_names:
-        db["collections"].create(
+    if collections_table.exists():
+        collections_table.create(
             columns={
                 "alias": str,
                 "title": str,
@@ -50,18 +60,18 @@ def build_database(db: Database):
             pk="alias",
             foreign_keys=(("user_username", "users", "username"),),
         )
-        db["collections"].enable_fts(
+        collections_table.enable_fts(
             ["title", "description"], create_triggers=True
         )
 
-    collections_indexes = {tuple(i.columns) for i in db["collections"].indexes}
+    collections_indexes = {tuple(i.columns) for i in collections_table.indexes}
     if ("alias",) not in collections_indexes:
-        db["collections"].create_index(["alias"])
+        collections_table.create_index(["alias"])
     if ("user_username",) not in collections_indexes:
-        db["collections"].create_index(["user_username"])
+        collections_table.create_index(["user_username"])
 
-    if "posts" not in table_names:
-        db["posts"].create(
+    if posts_table.exists():
+        posts_table.create(
             columns={
                 "id": str,
                 "slug": str,
@@ -82,13 +92,13 @@ def build_database(db: Database):
                 ("user_username", "users", "username"),
             ),
         )
-        db["posts"].enable_fts(["title", "body"], create_triggers=True)
+        posts_table.enable_fts(["title", "body"], create_triggers=True)
 
-    posts_indexes = {tuple(i.columns) for i in db["posts"].indexes}
+    posts_indexes = {tuple(i.columns) for i in posts_table.indexes}
     if ("collection_alias",) not in posts_indexes:
-        db["posts"].create_index(["collection_alias"])
+        posts_table.create_index(["collection_alias"])
     if ("user_username",) not in posts_indexes:
-        db["posts"].create_index(["user_username"])
+        posts_table.create_index(["user_username"])
 
 
 def get_client(auth_file_path: str) -> WriteFreelyClient:
@@ -130,4 +140,6 @@ def save_user(db: Database, user: Dict[str, Any]):
     Save WriteFreely user to the SQLite database.
     """
     build_database(db)
-    db["users"].insert(user, pk="username", alter=True, replace=True)
+
+    users_table = get_table("users", db=db)
+    users_table.insert(user, pk="username", alter=True, replace=True)

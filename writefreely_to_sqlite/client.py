@@ -28,6 +28,8 @@ class WriteFreelyClient:
 
         if self.access_token is not None:
             self.session.auth = WriteFreelyAuth(self.access_token)
+        else:
+            self.session.auth = None
 
         user_agent = "writefreely-to-sqlite (+https://github.com/myles/writefreely-to-sqlite)"
         self.session.headers["User-Agent"] = user_agent
@@ -69,7 +71,7 @@ class WriteFreelyClient:
 
         response_data = response.json()
         self.access_token = response_data["data"]["access_token"]
-        self.session.auth = WriteFreelyAuth(self.access_token)
+        self.session.auth = WriteFreelyAuth(self.access_token)  # type: ignore
 
         return request, response
 
