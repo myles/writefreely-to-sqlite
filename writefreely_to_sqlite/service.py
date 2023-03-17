@@ -16,16 +16,11 @@ def open_database(db_file_path: Path) -> Database:
     return Database(db_file_path)
 
 
-def get_table(
-    table_name: str,
-    *,
-    db: Database,
-    extracts: Union[Dict[str, Any], List[str]] = None
-) -> Table:
+def get_table(table_name: str, *, db: Database) -> Table:
     """
     Returns a Table from a given db Database object.
     """
-    return Table(db=db, name=table_name, extracts=extracts)
+    return Table(db=db, name=table_name)
 
 
 def build_database(db: Database):
