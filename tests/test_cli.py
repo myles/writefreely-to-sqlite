@@ -52,7 +52,7 @@ def test_user(cli_runner, mock_db, mocker):
     responses.add(
         responses.Response(
             method="GET",
-            url=f"https://write.as/api/me",
+            url="https://write.as/api/me",
             json=fixtures.ME_RESPONSE,
         ),
     )
@@ -74,14 +74,14 @@ def test_posts(cli_runner, mock_db, mocker):
     responses.add(
         responses.Response(
             method="GET",
-            url=f"https://write.as/api/me",
+            url="https://write.as/api/me",
             json=fixtures.ME_RESPONSE,
         ),
     )
     responses.add(
         responses.Response(
             method="GET",
-            url=f"https://write.as/api/me/posts",
+            url="https://write.as/api/me/posts",
             json=fixtures.ME_POSTS_RESPONSE,
         ),
     )
@@ -103,14 +103,14 @@ def test_collections(cli_runner, mock_db, mocker):
     responses.add(
         responses.Response(
             method="GET",
-            url=f"https://write.as/api/me",
+            url="https://write.as/api/me",
             json=fixtures.ME_RESPONSE,
         ),
     )
     responses.add(
         responses.Response(
             method="GET",
-            url=f"https://write.as/api/me/collections",
+            url="https://write.as/api/me/collections",
             json=fixtures.ME_COLLECTIONS_RESPONSE,
         ),
     )

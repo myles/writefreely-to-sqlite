@@ -31,11 +31,12 @@ def test_write_freely_client__request():
     assert "Authorization" in call.request.headers
     assert call.request.headers["Authorization"] == f"Token {access_token}"
 
-    assert "User-Agent" in call.request.headers
-    assert (
-        call.request.headers["User-Agent"]
-        == "writefreely-to-sqlite (+https://github.com/myles/writefreely-to-sqlite)"
+    expected_user_agent = (
+        "writefreely-to-sqlite"
+        " (+https://github.com/myles/writefreely-to-sqlite)"
     )
+    assert "User-Agent" in call.request.headers
+    assert call.request.headers["User-Agent"] == expected_user_agent
 
 
 @responses.activate
