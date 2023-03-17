@@ -31,8 +31,9 @@ class WriteFreelyClient:
         else:
             self.session.auth = None
 
-        user_agent = "writefreely-to-sqlite (+https://github.com/myles/writefreely-to-sqlite)"
-        self.session.headers["User-Agent"] = user_agent
+        package_name = "writefreely-to-sqlite"
+        package_url = "https://github.com/myles/writefreely-to-sqlite"
+        self.session.headers["User-Agent"] = f"{package_name} (+{package_url})"
 
     def request(
         self,
