@@ -46,21 +46,16 @@ jobs:
 
       - id: install-dependencies
         name: Install dependencies 👨🏻‍💻
-        run: |
-          poetry install
+        run: make setup
 
       - id: run-test
         name: Run tests 🧪
-        run: |
-          poetry run pytest --cov=writefreely_to_sqlite
+        run: make test
 
       - id: run-linters
         name: Run linters 🚨
-        run: |
-          poetry run black --check .
-          poetry run isort --check .
+        run: make lint
 
       - id: run-typing
         name: Run mypy 🏷
-        run: |
-          poetry run mypy .
+        run: make mypy
