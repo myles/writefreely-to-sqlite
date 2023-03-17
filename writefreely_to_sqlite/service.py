@@ -16,7 +16,12 @@ def open_database(db_file_path: Path) -> Database:
     return Database(db_file_path)
 
 
-def get_table(table_name: str, *, db: Database, extracts: Union[Dict[str, Any], List[str]] = None) -> Table:
+def get_table(
+    table_name: str,
+    *,
+    db: Database,
+    extracts: Union[Dict[str, Any], List[str]] = None
+) -> Table:
     """
     Returns a Table from a given db Database object.
     """
@@ -85,12 +90,12 @@ def build_database(db: Database):
             defaults={
                 "created_at": datetime.datetime.utcnow(),
             },
-            foreign_keys=(
-                ("collection_alias", "collections", "alias"),
-            ),
+            foreign_keys=(("collection_alias", "collections", "alias"),),
         )
 
-    collection_views_indexes = {tuple(i.columns) for i in collection_views_table.indexes}
+    collection_views_indexes = {
+        tuple(i.columns) for i in collection_views_table.indexes
+    }
     if ("collection_alias",) not in collection_views_indexes:
         collection_views_table.create_index(["collection_alias"])
 
@@ -140,9 +145,7 @@ def build_database(db: Database):
             defaults={
                 "created_at": datetime.datetime.utcnow(),
             },
-            foreign_keys=(
-                ("post_id", "posts", "id"),
-            ),
+            foreign_keys=(("post_id", "posts", "id"),),
         )
 
     post_views_indexes = {tuple(i.columns) for i in post_views_table.indexes}
@@ -254,11 +257,7 @@ def transform_post_view(view: Dict[str, Any]):
     SQLite database.
     """
     view["post_id"] = view.pop("id")
-    to_remove = [
-        k
-        for k in view.keys()
-        if k not in ( "post_id", "views" )
-    ]
+    to_remove = [k for k in view.keys() if k not in ("post_id", "views")]
     for key in to_remove:
         del view[key]
 
@@ -275,7 +274,6 @@ def save_post_views(db: Database, post_views: List[Dict[str, Any]]):
         transform_post_view(view)
 
     post_views_table.insert_all(records=post_views)
-
 
 
 def get_collections(client: WriteFreelyClient) -> List[Dict[str, Any]]:
@@ -336,9 +334,7 @@ def transform_collection_view(view: Dict[str, Any]):
     """
     view["collection_alias"] = view.pop("alias")
     to_remove = [
-        k
-        for k in view.keys()
-        if k not in ( "collection_alias", "views" )
+        k for k in view.keys() if k not in ("collection_alias", "views")
     ]
     for key in to_remove:
         del view[key]

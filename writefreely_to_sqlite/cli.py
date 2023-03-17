@@ -1,6 +1,7 @@
 import json
-from pathlib import Path
 from copy import deepcopy
+from pathlib import Path
+
 import click
 
 from . import service
@@ -103,7 +104,9 @@ def posts(db_path, auth):
     user_username = user["username"]
 
     posts = service.get_posts(client)
-    service.save_posts(db=db, posts=deepcopy(posts), user_username=user_username)
+    service.save_posts(
+        db=db, posts=deepcopy(posts), user_username=user_username
+    )
     service.save_post_views(db=db, post_views=deepcopy(posts))
 
 
@@ -134,6 +137,8 @@ def collections(db_path, auth):
 
     collections = service.get_collections(client)
     service.save_collections(
-        db=db, collections=deepcopy(collections), user_username=user_username,
+        db=db,
+        collections=deepcopy(collections),
+        user_username=user_username,
     )
     service.save_collection_views(db=db, collection_views=deepcopy(collections))
