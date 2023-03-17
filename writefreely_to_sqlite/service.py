@@ -1,7 +1,7 @@
 import datetime
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 from sqlite_utils import Database
 from sqlite_utils.db import Table
