@@ -1,3 +1,4 @@
+import datetime
 import json
 from pathlib import Path
 from typing import Any, Dict, List
@@ -70,6 +71,29 @@ def build_database(db: Database):
     if ("user_username",) not in collections_indexes:
         collections_table.create_index(["user_username"])
 
+    collection_views_table = get_table("collection_views", db=db)
+
+    if collection_views_table.exists() is False:
+        collection_views_table.create(
+            columns={
+                "id": int,
+                "collection_alias": str,
+                "views": int,
+                "created_at": datetime.datetime,
+            },
+            pk="id",
+            defaults={
+                "created_at": datetime.datetime.utcnow(),
+            },
+            foreign_keys=(("collection_alias", "collections", "alias"),),
+        )
+
+    collection_views_indexes = {
+        tuple(i.columns) for i in collection_views_table.indexes
+    }
+    if ("collection_alias",) not in collection_views_indexes:
+        collection_views_table.create_index(["collection_alias"])
+
     posts_table = get_table("posts", db=db)
 
     if posts_table.exists() is False:
@@ -101,6 +125,27 @@ def build_database(db: Database):
         posts_table.create_index(["collection_alias"])
     if ("user_username",) not in posts_indexes:
         posts_table.create_index(["user_username"])
+
+    post_views_table = get_table("post_views", db=db)
+
+    if post_views_table.exists() is False:
+        post_views_table.create(
+            columns={
+                "id": int,
+                "post_id": str,
+                "views": int,
+                "created_at": datetime.datetime,
+            },
+            pk="id",
+            defaults={
+                "created_at": datetime.datetime.utcnow(),
+            },
+            foreign_keys=(("post_id", "posts", "id"),),
+        )
+
+    post_views_indexes = {tuple(i.columns) for i in post_views_table.indexes}
+    if ("post_id",) not in post_views_indexes:
+        post_views_table.create_index(["post_id"])
 
 
 def get_client(auth_file_path: str) -> WriteFreelyClient:
@@ -144,7 +189,7 @@ def save_user(db: Database, user: Dict[str, Any]):
     build_database(db)
 
     users_table = get_table("users", db=db)
-    users_table.insert(user, pk="username", alter=True, replace=True)
+    users_table.upsert(user, pk="username")
 
 
 def get_posts(client: WriteFreelyClient) -> List[Dict[str, Any]]:
@@ -198,12 +243,37 @@ def save_posts(db: Database, posts: List[Dict[str, Any]], user_username):
     for post in posts:
         transform_post(post, user_username)
 
-    posts_table.insert_all(records=posts, pk="id", alter=True, replace=True)
+    posts_table.upsert_all(records=posts, pk="id")
+
+
+def transform_post_view(post: Dict[str, Any]):
+    """
+    Transformer a WriteFreely post view, so it can be safely saved to the
+    SQLite database.
+    """
+    post["post_id"] = post.pop("id")
+    to_remove = [k for k in post.keys() if k not in ("post_id", "views")]
+    for key in to_remove:
+        del post[key]
+
+
+def save_post_views(db: Database, post_views: List[Dict[str, Any]]):
+    """
+    Save WriteFreely post views to the SQLite database.
+    """
+    build_database(db)
+
+    post_views_table = get_table("post_views", db=db)
+
+    for view in post_views:
+        transform_post_view(view)
+
+    post_views_table.insert_all(records=post_views)
 
 
 def get_collections(client: WriteFreelyClient) -> List[Dict[str, Any]]:
     """
-    Get the posts for the authenticated user.
+    Get the collections for the authenticated user.
     """
     _, response = client.get_me_collections()
     response.raise_for_status()
@@ -212,8 +282,8 @@ def get_collections(client: WriteFreelyClient) -> List[Dict[str, Any]]:
 
 def transform_collection(collection: Dict[str, Any], user_username: str):
     """
-    Transformer a WriteFreely post, so it can be safely saved to the SQLite
-    database.
+    Transformer a WriteFreely collection, so it can be safely saved to the
+    SQLite database.
     """
     to_remove = [
         k
@@ -240,7 +310,7 @@ def save_collections(
     db: Database, collections: List[Dict[str, Any]], user_username
 ):
     """
-    Save WriteFreely posts to the SQLite database.
+    Save WriteFreely collections to the SQLite database.
     """
     build_database(db)
 
@@ -249,6 +319,31 @@ def save_collections(
     for collection in collections:
         transform_collection(collection, user_username)
 
-    collections_table.insert_all(
-        records=collections, pk="alias", alter=True, replace=True
-    )
+    collections_table.upsert_all(records=collections, pk="alias")
+
+
+def transform_collection_view(collection: Dict[str, Any]):
+    """
+    Transformer a WriteFreely collection view, so it can be safely saved to the
+    SQLite database.
+    """
+    collection["collection_alias"] = collection.pop("alias")
+    to_remove = [
+        k for k in collection.keys() if k not in ("collection_alias", "views")
+    ]
+    for key in to_remove:
+        del collection[key]
+
+
+def save_collection_views(db: Database, collection_views: List[Dict[str, Any]]):
+    """
+    Save WriteFreely collection views to the SQLite database.
+    """
+    build_database(db)
+
+    collection_views_table = get_table("collection_views", db=db)
+
+    for view in collection_views:
+        transform_collection_view(view)
+
+    collection_views_table.insert_all(records=collection_views)
