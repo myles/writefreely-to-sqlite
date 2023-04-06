@@ -189,7 +189,7 @@ def save_user(db: Database, user: Dict[str, Any]):
     build_database(db)
 
     users_table = get_table("users", db=db)
-    users_table.insert(user, pk="username", alter=True, replace=True)
+    users_table.upsert(user, pk="username")
 
 
 def get_posts(client: WriteFreelyClient) -> List[Dict[str, Any]]:
@@ -246,15 +246,15 @@ def save_posts(db: Database, posts: List[Dict[str, Any]], user_username):
     posts_table.upsert_all(records=posts, pk="id")
 
 
-def transform_post_view(view: Dict[str, Any]):
+def transform_post_view(post: Dict[str, Any]):
     """
     Transformer a WriteFreely post view, so it can be safely saved to the
     SQLite database.
     """
-    view["post_id"] = view.pop("id")
-    to_remove = [k for k in view.keys() if k not in ("post_id", "views")]
+    post["post_id"] = post.pop("id")
+    to_remove = [k for k in post.keys() if k not in ("post_id", "views")]
     for key in to_remove:
-        del view[key]
+        del post[key]
 
 
 def save_post_views(db: Database, post_views: List[Dict[str, Any]]):
@@ -322,17 +322,17 @@ def save_collections(
     collections_table.upsert_all(records=collections, pk="alias")
 
 
-def transform_collection_view(view: Dict[str, Any]):
+def transform_collection_view(collection: Dict[str, Any]):
     """
     Transformer a WriteFreely collection view, so it can be safely saved to the
     SQLite database.
     """
-    view["collection_alias"] = view.pop("alias")
+    collection["collection_alias"] = collection.pop("alias")
     to_remove = [
-        k for k in view.keys() if k not in ("collection_alias", "views")
+        k for k in collection.keys() if k not in ("collection_alias", "views")
     ]
     for key in to_remove:
-        del view[key]
+        del collection[key]
 
 
 def save_collection_views(db: Database, collection_views: List[Dict[str, Any]]):

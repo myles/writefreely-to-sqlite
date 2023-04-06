@@ -92,6 +92,7 @@ def test_posts(cli_runner, mock_db, mocker):
     )
 
     assert mock_db["posts"].count == 1
+    assert mock_db["post_views"].count == 1
 
 
 @responses.activate
@@ -121,3 +122,4 @@ def test_collections(cli_runner, mock_db, mocker):
     )
 
     assert mock_db["collections"].count == 1
+    assert mock_db["collection_views"].count == 1

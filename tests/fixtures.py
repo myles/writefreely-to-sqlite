@@ -22,7 +22,7 @@ POST_DATA = {
     "title": "",
     "body": "Cool post!",
     "tags": [],
-    "views": 0,
+    "views": 10,
     "collection": {
         "alias": COLLECTION_DATA["alias"],
         "title": COLLECTION_DATA["title"],
