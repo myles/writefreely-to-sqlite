@@ -20,12 +20,12 @@ def test_build_database(mock_db):
 
 @responses.activate
 def test_get_user():
-    domain = 'write-freely.testing'
+    domain = "write-freely.testing"
 
     responses.add(
         responses.Response(
             method="GET",
-            url=f'https://{domain}/api/me',
+            url=f"https://{domain}/api/me",
             json=fixtures.ME_RESPONSE,
         )
     )
@@ -51,12 +51,12 @@ def test_save_user(mock_db):
 
 @responses.activate
 def test_get_posts():
-    domain = 'write-freely.testing'
+    domain = "write-freely.testing"
 
     responses.add(
         responses.Response(
             method="GET",
-            url=f'https://{domain}/api/me/posts',
+            url=f"https://{domain}/api/me/posts",
             json=fixtures.ME_POSTS_RESPONSE,
         )
     )
